@@ -1,0 +1,40 @@
+{
+    "builders": [{
+    "type": "amazon-ebs",
+    "region": "{{user `region`}}",
+    "instance_type": "t2.micro",
+    "source_ami_filter": {
+    "filters": {
+    "virtualization-type": "hvm",
+    "root-device-type": "ebs"
+    },
+    "owners": ["{{user `owners`}}"],
+    "most_recent": true
+    },
+    "ssh_username": "centos",
+    "ssh_keypair_name": "remoteBastionKey",
+    "ssh_private_key_file": "/home/ec2-user/.ssh/id_rsa",
+    "ami_name": "artemisv_11-{{timestamp}}"
+    }],
+    "provisioners": [
+    {
+    "type": "shell",
+    "inline": [
+    "sudo yum install git -y",
+    "sudo yum install epel-release -y",
+    "sudo yum install python-pip -y",
+    "sudo git clone --single-branch --branch version/0.11 https://github.com/fuchicorp/artemis.git /artemis",
+    "sudo pip install flask",
+    "sudo pip install --upgrade pip",
+    "sudo cp -r /artemis/artemis.service /etc/systemd/system/",
+    "sudo systemctl daemon-reload",
+    "sudo systemctl start artemis",
+    "sudo systemctl enable artemis"
+    ]
+    },
+    {
+    "type": "breakpoint",
+    "note": "Wait for you to delete"
+    }
+    ]
+    }
